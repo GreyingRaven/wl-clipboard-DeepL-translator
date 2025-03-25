@@ -41,4 +41,3 @@ else
     echo "No APIKEY for DeepL API found. Create a file .deepl_apikey containing your apikey in the .config folder for this script $/.config/wl-translator"
 fi
 
-
