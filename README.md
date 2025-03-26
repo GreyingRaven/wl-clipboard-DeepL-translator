@@ -21,7 +21,7 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh
 
 ## To Do
 - Add a flag to enable/disable translations containing time
-- Create a history of translations so if it has already been translated it won't call the api but recover it from history
 
 ## Changelog
-[20250326] Added options [-h|s|t|T] h shows help; s sets source language; t sets target language; T not implemented yet
+[20250326] Added options [-h|f|s|t|T] h shows help; f sets translations file; s sets source language; t sets target language; T not implemented yet.
+Added associative array stored in a translations file settable fith f option
