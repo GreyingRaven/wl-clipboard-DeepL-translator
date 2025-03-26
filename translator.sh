@@ -1,5 +1,24 @@
 #!/bin/bash
 
+##########################################################
+# Help                                                   #
+##########################################################
+Help()
+{
+    # Display Help
+    echo "Translates last copied text in clipboard using DeepL API."
+    echo
+    echo "Options: [-h|s|t|T]"
+    echo "h    Print this help text."
+    echo "s    Set source_lang (Default: JA)"
+    echo "t    Set target_lang (Default: EN)"
+    echo "T    Translate text containing time (Default: False)"
+}
+
+
+##########################################################
+# Initialize valiables                                   #
+##########################################################
 # Create config folder
 mkdir -p "$HOME/.config/wl-translator"
 # Set file varibles
@@ -7,6 +26,34 @@ history_file="$HOME/.config/wl-translator/.last_translation"
 apikey_file="$HOME/.config/wl-translator/.deepl_apikey"
 # Set time exclusion regex
 time_regex='^.*[0-9]{2}[-:][0-9]{2}[-:][0-9]{2}.*$'
+# Set default languages
+source_lang="JA"
+target_lang="EN"
+
+
+
+###########################################################
+# Main program                                            #
+###########################################################
+# Get the options
+while getopts :h:s:t:T: flag
+do
+    case "${flag}" in
+	h) # display help
+	    Help
+	    exit;;
+	s) # set source_lang
+	    source_lang=${OPTARG};;
+	t) # set target_lang
+	    target_lang=${OPTARG};;
+	T) # set flag for time condition
+	    echo "Option not implemented"
+	    exit;;
+	\?) # Invalid option
+	    echo "Error: Invalid option"
+	    exit;;
+    esac
+done
 # Check if there is something saved as a previous text to translate
 if [ -f "$history_file" ]; then
     last_translation=$(cat "$history_file")
@@ -31,16 +78,17 @@ if [ -f "$apikey_file" ]; then
 	## Original text
 	## -
 	## Translation
+	echo "$source_lang -> $target_lang"
 	printf $translate_text
 	printf '\n
-     -
+-
     \n'
 	# Calls deepl free api and prints the translated text
 	curl --silent -X POST https://api-free.deepl.com/v2/translate   --header "Content-Type: application/json"   --header "Authorization: DeepL-Auth-Key $API_KEY"   --data '
       {
 	      "text": ["'$translate_text'"],
-	      "source_lang": "JA",
-	      "target_lang": "EN"
+	      "source_lang": "'$source_lang'",
+	      "target_lang": "'$target_lang'"
       }' | jq -r .translations[0].text
     fi
     

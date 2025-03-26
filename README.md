@@ -20,6 +20,8 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh
 `wl-paste -w(--watch) command` allows for the execution of a command each time wl-copy is updated. This allows for the script to run on each new `copy` and call DeepL for a new translation
 
 ## To Do
-- Make `source_lang` and `target_lang` optional inputs
 - Add a flag to enable/disable translations containing time
 - Create a history of translations so if it has already been translated it won't call the api but recover it from history
+
+## Changelog
+[20250326] Added options [-h|s|t|T] h shows help; s sets source language; t sets target language; T not implemented yet
