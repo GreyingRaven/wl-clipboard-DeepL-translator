@@ -14,17 +14,24 @@ fi
 # Check if there is an API key, only continue if there is
 if [ -f "$apikey_file" ]; then
     API_KEY=$(cat "$apikey_file")
-    # Clean terminal from previous translations
-    clear
-    # Print original text
+    # Asign text to translate from clipboard
     translate_text="$(wl-paste)"
+
     # Check if the text to translate is:
     ## Not empty
     ## Not equal to last translation
     ## Doesn't contain time
     if [ ! -z "$translate_text" ] && [ "$translate_text" != "$last_translation" ] && ! [[ "$translate_text" =~ $time_regex ]]; then
+	# Clear terminal to remove previous translation
+	clear
+	# Update history with latest translation
 	echo $translate_text > "$history_file"
-	printf $translate_text "\n"
+	# TODO persist translation for later recovery
+	# Print response with following format
+	## Original text
+	## -
+	## Translation
+	printf $translate_text
 	printf '\n
      -
     \n'
