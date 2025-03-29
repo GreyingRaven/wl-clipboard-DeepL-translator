@@ -10,7 +10,8 @@ Help()
     echo
     echo "Options: [h|f|s|t|T|R]"
     echo "-h    Print this help text."
-    echo "-f    Set translations file. (Default: ~/.config/wl-translator/.trasnlations). To disable translations map point to non existing file."
+    echo "-f    Set translations file. (Default: ~/.config/wl-translator/.trasnlations)."
+    echo "      To disable translations map point to non existing file."
     echo "-s    Set source_lang (Default: JA)."
     echo "-t    Set target_lang (Default: EN)."
     echo "-T    Enable/Disable excludion flag (Default: Enabled)[true|false]."
@@ -76,7 +77,7 @@ done
 #----------------------------------------------------------
 
 # Asign text to translate from clipboard
-translate_text="$(wl-paste)"
+translate_text="$1"
 # If exclusion_flag exit if any exclusion regex is true
 if $exclude_flag && { [[ "$translate_text" =~ $time_regex ]] || [[ "$translate_text" =~ $combat_regex ]] } ; then
     exit
@@ -128,10 +129,8 @@ if [ -f "$apikey_file" ]; then
     ## -
     ## Translation
     echo "$source_lang -> $target_lang"
-    printf $translate_text
-    printf '\n
--
-    \n'
+    echo "$translate_text"
+    echo "-"
     # Calls deepl free api and prints the translated text
     deepl_response=$(curl --silent -X POST https://api-free.deepl.com/v2/translate   --header "Content-Type: application/json"   --header "Authorization: DeepL-Auth-Key $API_KEY"   --data '
      {

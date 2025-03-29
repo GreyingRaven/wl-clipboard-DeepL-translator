@@ -22,11 +22,11 @@ The script will create a config folder in `~/.config/wl-translator` containing d
 
 To run the script use the following command:
 ```sh
-wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh
+wl-paste -w sh ~/wl-clipboard-DeepL-translator/translator.sh wl-paste
 ```
 Options can be added at the end of the command:
 ```sh
-wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh -f ~/Documents/translations/rus2eng.translations -s RU -t EN
+wl-paste -w sh ~/wl-clipboard-DeepL-translator/translator.sh wl-paste -f ~/Documents/translations/rus2eng.translations -s RU -t EN
 ```
 #### Available options:
  - h    Print help text.
@@ -37,13 +37,23 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh -f ~/Documents/trans
  - T    Enable/Disable excludion flag (Default: Enabled)[true|false].
  - R    Enable/Disable removal flag (Default: Enabled)[true|false].
 
+For easier use create a symling to ~/.local/bin
+```
+ln -s ~/wl-clipboard-DeepL-translator/translator.sh ~/.local/bin/translate
+wl-paste -w translate wl-paste
+```
+
 
 ## To Do
-1. remove wl-paste dependency
- - test if wl-paste as input works `wl-paste -w sh translate.sh wl-paste -f ...`
+1. Fix help not showing
+2. Add silent mode --silent that only prints translation result, no extra info
+3. Add verbose mode -v that prints more info on use
+4. Make exclusion regexes and removal regexes configurable
 
 ## Changelog
 ### [20250329] Unimplemented functionality
+##### Removed wl-paste dependency
+ - translator.sh now takes an input string to translate
 ##### New bash. update_translation.sh
  - Takes a file as parameter
  1. Prompts user to input translation to update key
