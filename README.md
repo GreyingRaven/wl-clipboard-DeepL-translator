@@ -17,6 +17,7 @@ curl -X POST https://api-free.deepl.com/v2/translate   --header "Content-Type: a
 The script will create a config folder in `~/.config/wl-translator` containing default hidden files for normal use:
 - `.last_translation` Used to prevent translating the same string twice in a row
 - `.translations` Map of translations to reduce the number of calls to DeepL api, if it has already been translated it recovers translation from this file.
+
 **Important**: This folder must contain `.deepl_apikey` file with a valid DeepL api key.
 
 To run the script use the following command:
@@ -38,36 +39,36 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh -f ~/Documents/trans
 
 
 ## To Do
-- remove wl-paste dependency
+1. remove wl-paste dependency
  - test if wl-paste as input works `wl-paste -w sh translate.sh wl-paste -f ...`
 
 ## Changelog
 ### [20250329] Unimplemented functionality
-#### New bash. update_translation.sh
+##### New bash. update_translation.sh
  - Takes a file as parameter
- - Prompts user to input translation to update key
- - Prompts uset to input new translation
-#### Implemented exclude flag.
- - Default true.
- - If active stops translation if it includes excluding regexes:
-  1. Excludes strings containing time [00:00:00]
-  2. Excludes combat strings containing health/mana/zp values
-#### Implemented remove flag.
- - Default true.
- - If active removes lines from translation string that include remove regexes:
-  1. Removes money lines [####Lo]
-#### Removed option T. 
-#### Added options [E|R] 
- - E sets exclude flag.
- - R sets remove flag.
-#### Updated How to use.
-#### Formatted changelog for easier reading.
+ 1. Prompts user to input translation to update key
+ 2. Prompts uset to input new translation
+##### Implemented exclude flag.
+ 1. Default true.
+ 2. If active stops translation if it includes excluding regexes:
+  - Excludes strings containing time [00:00:00]
+  - Excludes combat strings containing health/mana/zp values
+##### Implemented remove flag.
+ 1. Default true.
+ 2. If active removes lines from translation string that include remove regexes:
+  - Removes money lines [####Lo]
+##### Removed option T. 
+##### Added options [E|R] 
+ 1. E sets exclude flag.
+ 2. R sets remove flag.
+##### Updated How to use.
+##### Formatted changelog for easier reading.
 
 ### [20250326] Configurable options
-#### Added options [-h|f|s|t|T] 
- - h shows help; 
- - f sets translations file; 
- - s sets source language; 
- - t sets target language; 
- - T not implemented yet.
-#### Added associative array stored in a translations file settable fith f option
+##### Added options [-h|f|s|t|T] 
+ 1. h shows help; 
+ 2. f sets translations file; 
+ 3. s sets source language; 
+ 4. t sets target language; 
+ 5. T not implemented yet.
+##### Added associative array stored in a translations file settable fith f option
