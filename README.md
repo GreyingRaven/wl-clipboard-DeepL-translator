@@ -38,33 +38,36 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translate.sh -f ~/Documents/trans
 
 
 ## To Do
-- Editable history translations
- - Allow input after translation to update?
- - Auxiliary script to update saved translations?
+- remove wl-paste dependency
+ - test if wl-paste as input works `wl-paste -w sh translate.sh wl-paste -f ...`
 
 ## Changelog
-[20250329] Unimplemented functionality
-- Implemented exclude flag.
+### [20250329] Unimplemented functionality
+#### New bash. update_translation.sh
+ - Takes a file as parameter
+ - Prompts user to input translation to update key
+ - Prompts uset to input new translation
+#### Implemented exclude flag.
  - Default true.
  - If active stops translation if it includes excluding regexes:
-  - Excludes strings containing time [00:00:00]
-  - Excludes combat strings containing health/mana/zp values
-- Implemented remove flag.
+  1. Excludes strings containing time [00:00:00]
+  2. Excludes combat strings containing health/mana/zp values
+#### Implemented remove flag.
  - Default true.
  - If active removes lines from translation string that include remove regexes:
-  - Removes money lines [####Lo]
-- Removed option T. 
-- Added options [E|R] 
+  1. Removes money lines [####Lo]
+#### Removed option T. 
+#### Added options [E|R] 
  - E sets exclude flag.
  - R sets remove flag.
-- Updated How to use.
-- Formatted changelog for easier reading.
+#### Updated How to use.
+#### Formatted changelog for easier reading.
 
-[20250326] Configurable options
-- Added options [-h|f|s|t|T] 
+### [20250326] Configurable options
+#### Added options [-h|f|s|t|T] 
  - h shows help; 
  - f sets translations file; 
  - s sets source language; 
  - t sets target language; 
  - T not implemented yet.
-- Added associative array stored in a translations file settable fith f option
+#### Added associative array stored in a translations file settable fith f option

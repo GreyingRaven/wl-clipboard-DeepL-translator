@@ -78,7 +78,7 @@ done
 # Asign text to translate from clipboard
 translate_text="$(wl-paste)"
 # If exclusion_flag exit if any exclusion regex is true
-if $exclude_flag && ! [[ "$translate_text" =~ $time_regex ]] && [[ "$translate_text" =~ $combat_regex ]] ; then
+if $exclude_flag && { [[ "$translate_text" =~ $time_regex ]] || [[ "$translate_text" =~ $combat_regex ]] } ; then
     exit
 fi
 # If remove_flag active remove removal regexes from translation string
@@ -92,7 +92,7 @@ fi
 # Exit if the text to translate is:
 ## empty
 ## equal to last translation
-if [ ! -z "$translate_text" ] && [ "$translate_text" != "$last_translation" ] ; then
+if [ ! -z "$translate_text" ] && [ "$translate_text" = "$last_translation" ] ; then
     exit
 fi
 
@@ -111,7 +111,7 @@ if [ -f "$translations_file" ]; then
 	echo "$translate_text"
 	echo "-"
 	echo "${translations[$translationhex]}"
-	exit
+        exit
     fi
 fi
 # Check if there is an API key, only continue if there is
