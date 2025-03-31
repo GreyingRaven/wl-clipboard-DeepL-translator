@@ -49,8 +49,12 @@ wl-paste -w translate wl-paste
 2. Add silent mode --silent that only prints translation result, no extra info
 3. Add verbose mode -v that prints more info on use
 4. Make exclusion regexes and removal regexes configurable
+5. Remove wl-paste dependency
 
 ## Changelog
+### [20250331] Fix
+##### Added wl-paste dependency
+ - Wasn't working as intended
 ### [20250329] Unimplemented functionality
 ##### Removed wl-paste dependency
  - translator.sh now takes an input string to translate
