@@ -131,7 +131,7 @@ done
 raw_text="$(wl-paste)"
 # Clean translate string to remove API errors
 ## remove 「」characters, remove \r, exchange " for \", exchange ! for !\n
-translate_text="$(sed -e 'H;${x;s/「//g;s/」//g;s/\r//g;s/"/\\"/g;s/!/!\n/g;p;};d' <<< "$raw_text")"
+translate_text="$(sed -e 'H;${x;s/「//g;s/」//g;s/\r//g;s/"/\\"/g;s/！/!\n/g;p;};d' <<< "$raw_text")"
 # If remove_flag active remove removal regexes from translation string
 if $remove_flag ; then 
     translate_text=$(sed $money_regex <<< "$translate_text")
@@ -147,7 +147,7 @@ $silent || echo "$translate_text"
 $silent || echo "-"
 # Extract array from translate_text
 readarray -t translate_array <<< "$translate_text"
-$debug && echo "DEBUG: " ; declare -p translate_array
+$debug && echo "DEBUG: " ; $debug && declare -p translate_array
 for element in "${translate_array[@]}"
 do
     $verbose && echo "$element"
