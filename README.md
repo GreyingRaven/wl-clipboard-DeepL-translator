@@ -34,6 +34,7 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translator.sh wl-paste -f ~/Docum
         To disable translations map point to non existing file.
  - s    Set source_lang (Default: JA).
  - t    Set target_lang (Default: EN).
+ - c    Set clear flag (Default: true).[No value needed, if used flag is set to false]
  - R    Enable/Disable removal flag (Default: Enabled)[true|false].
 
 For easier use create a symling to ~/.local/bin
@@ -44,12 +45,11 @@ wl-paste -w translate wl-paste
 
 
 ## To Do
-1. Manage numbers in translations. Make use of history to translate "1 apple" ; "2 apple" should not need to call DeepL again.
-2. Fix help not showing.
-3. Add silent mode --silent that only prints translation result, no extra info.
-4. Add verbose mode -v that prints more info on use.
-5. Make exclusion regexes and removal regexes configurable.
-6. Remove wl-paste dependency.
+1. Fix help not showing.
+2. Add silent mode --silent that only prints translation result, no extra info.
+3. Add verbose mode -v that prints more info on use.
+4. Make exclusion regexes and removal regexes configurable.
+5. Remove wl-paste dependency.
 
 ## Changelog
 ### [20250403]
@@ -57,8 +57,16 @@ wl-paste -w translate wl-paste
  1. Split translation text into translation array by lines
  2. Call GetTranslation() for each line
  - Better history managment
+##### Numbers in translation text managed
+ - Any text with numbers will send # instead so it can be saved in history and reused
+ - `3 foo and 4 bar` will call to deepl and translate `# foo and # bar`
+ - `2 foo and 7 bar` will use saved translation.
 ##### Removed exclusion regex
  - Unnecesary as removal regex takes care of it
+##### Added clear flag
+ - Disable by using -c flag
+ - If true clears terminal each translation
+##### Fixed " in string translation error
 ### [20250331] Fix
 ##### Added wl-paste dependency
  - Wasn't working as intended

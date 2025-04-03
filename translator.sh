@@ -29,8 +29,8 @@ GetTranslation()
 	source -- "$translations_file"
 	translationhex=$(hexdump -ve '1/1 "%02x"' <<< "$1")
 	if [[ -v translations[$translationhex] ]]; then
-	    echo "${translations[$translationhex]}"
-            exit
+	    echo "|${translations[$translationhex]}"
+            return 0
 	fi
     fi
     # Check if there is an API key, only continue if there is
@@ -38,9 +38,9 @@ GetTranslation()
 	API_KEY=$(cat "$apikey_file")
 	echo $1 > "$history_file"
 	# Calls deepl free api and prints the translated text
-	# verbose - echo "$translate_text"
+	# verbose - echo "$1"
 	translation_data="{ \"text\": [\"$1\"], \"source_lang\": \"$source_lang\", \"target_lang\": \"$target_lang\" }"
-	# verbose - echo $("$translation_data")
+	# verbose - echo "$translation_data"
 	deepl_response=$(curl --silent -X POST https://api-free.deepl.com/v2/translate   --header "Content-Type: application/json"   --header "Authorization: DeepL-Auth-Key $API_KEY"   --data "$translation_data")
 	# verbose - echo "$deepl_response"
 	translation=$(jq -r ".translations[].text" <<< "${deepl_response}")
@@ -68,7 +68,7 @@ translations_file="$HOME/.config/wl-translator/.translations"
 apikey_file="$HOME/.config/wl-translator/.deepl_apikey"
 # Set flags
 remove_flag=true
-exclude_flag=true
+clear_flag=true
 # Set line removal regexes
 money_regex='/^.*[0-9]Lo.*$/d'
 time_regex='/^.*[0-9]{2}[-:][0-9]{2}[-:][0-9]{2}.*$/d'
@@ -87,7 +87,7 @@ target_lang="EN"
 # Get the options                                         #
 #----------------------------------------------------------
 
-while getopts :h:f:s:t:R: flag
+while getopts :h:f:s:t:c:R: flag
 do
     case "${flag}" in
 	h) # display help
@@ -99,6 +99,8 @@ do
 	    source_lang=${OPTARG};;
 	t) # set target_lang
 	    target_lang=${OPTARG};;
+	c) # set clear flag
+	    clear_flag=false;;
 	R) # set removal flag
 	    remove_flag=${OPTARG};;
 	\?) # Invalid option
@@ -108,7 +110,6 @@ do
 done
 
 
-
 #----------------------------------------------------------
 # Get text and check if translatable                      #
 #----------------------------------------------------------
@@ -116,7 +117,7 @@ done
 # Asign text to translate from input
 raw_text="$(wl-paste)"
 # Remove 「」characters
-translate_text="$(sed -e 'H;${x;s/「//g;s/」//g;p;};d' <<< "$raw_text")"
+translate_text="$(sed -e 'H;${x;s/「//g;s/」//g;s/\r//g;s/"/\\"/g;p;};d' <<< "$raw_text")"
 # If remove_flag active remove removal regexes from translation string
 if $remove_flag ; then 
     translate_text=$(sed $money_regex <<< "$translate_text")
@@ -125,24 +126,38 @@ if $remove_flag ; then
     translate_text=$(sed $mp_regex <<< "$translate_text")
     translate_text=$(sed $hp_regex <<< "$translate_text")
 fi
+# Clean terminal from previous translations
+if $clear_flag ; then
+    clear
+fi
 echo "$translate_text"
 echo "-"
 # Extract array from translate_text
 readarray -t translate_array <<< "$translate_text"
+# debug - declare -p translate_array
 for element in "${translate_array[@]}"
 do
-    GetTranslation "$element"
+    # verbose - echo "$element"
+    if [ ! -z "$element" ] && [[ $element =~ [0-9]+ ]] ;
+    then
+	aux="$element"
+	extracted_numbers=$(echo "$element" | grep -o -E '[0-9]*+')
+	# debug - echo "line numbers: $extracted_numbers"
+	readarray -t numbers <<< "$extracted_numbers"
+	for number in "${numbers[@]}"
+	do
+	    # debug - echo "n: $number"
+	    aux="$(sed -e "s/${number}/#/" <<< "$aux")"
+	    # debug - echo "aux: $aux"
+	done
+	aux="$(GetTranslation "$aux")"
+	for number in "${numbers[@]}"
+	do
+	    aux="$(sed -e "s/#/${number}/" <<< "$aux")"
+	done
+	echo "$aux"
+    else
+	# debug - echo "No number"
+	GetTranslation "$element"
+    fi
 done
-exit
-# Check if there is something saved as a previous text to translate
-if [ -f "$history_file" ]; then
-    last_translation=$(cat "$history_file")
-fi
-# Exit if the text to translate is:
-## empty
-## equal to last translation
-if [ ! -z "$translate_text" ] && [ "$translate_text" = "$last_translation" ] ; then
-    exit
-fi
-
-
