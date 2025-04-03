@@ -30,12 +30,15 @@ wl-paste -w sh ~/wl-clipboard-DeepL-translator/translator.sh wl-paste -f ~/Docum
 ```
 #### Available options:
  - h    Print help text.[Not Working]
+ - d    Enable debug mode. Shows debug log traces.
+ - v    Enable verbose mode. Shows more info per translation.
  - f    Set translations file. (Default: ~/.config/wl-translator/.trasnlations).
         To disable translations map point to non existing file.
  - s    Set source_lang (Default: JA).
  - t    Set target_lang (Default: EN).
- - c    Set clear flag (Default: true).[No value needed, if used flag is set to false]
- - R    Enable/Disable removal flag (Default: Enabled)[true|false].
+ - c    Enable clear flag. Clears terminal before each translation
+ - R    Disable removal flag.
+ - S    Enable silent mode. Stops showing original text before translation.
 
 For easier use create a symling to ~/.local/bin
 ```
@@ -45,14 +48,14 @@ wl-paste -w translate wl-paste
 
 
 ## To Do
-1. Fix help not showing.
-2. Add silent mode --silent that only prints translation result, no extra info.
-3. Add verbose mode -v that prints more info on use.
-4. Make exclusion regexes and removal regexes configurable.
-5. Remove wl-paste dependency.
+1. Make removal regexes configurable.
+2. Remove wl-paste dependency.
 
 ## Changelog
 ### [20250403]
+##### Added silent mode
+##### Added verbose mode
+##### Added debug mode
 ##### Changed logic to work with string[]
  1. Split translation text into translation array by lines
  2. Call GetTranslation() for each line
@@ -66,7 +69,10 @@ wl-paste -w translate wl-paste
 ##### Added clear flag
  - Disable by using -c flag
  - If true clears terminal each translation
+##### Added LR after !
+ - Creates a new line that can be translated separately.
 ##### Fixed " in string translation error
+##### Fixed help not showing
 ### [20250331] Fix
 ##### Added wl-paste dependency
  - Wasn't working as intended
