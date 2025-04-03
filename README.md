@@ -29,12 +29,11 @@ Options can be added at the end of the command:
 wl-paste -w sh ~/wl-clipboard-DeepL-translator/translator.sh wl-paste -f ~/Documents/translations/rus2eng.translations -s RU -t EN
 ```
 #### Available options:
- - h    Print help text.
+ - h    Print help text.[Not Working]
  - f    Set translations file. (Default: ~/.config/wl-translator/.trasnlations).
         To disable translations map point to non existing file.
  - s    Set source_lang (Default: JA).
  - t    Set target_lang (Default: EN).
- - T    Enable/Disable excludion flag (Default: Enabled)[true|false].
  - R    Enable/Disable removal flag (Default: Enabled)[true|false].
 
 For easier use create a symling to ~/.local/bin
@@ -45,13 +44,21 @@ wl-paste -w translate wl-paste
 
 
 ## To Do
-1. Fix help not showing
-2. Add silent mode --silent that only prints translation result, no extra info
-3. Add verbose mode -v that prints more info on use
-4. Make exclusion regexes and removal regexes configurable
-5. Remove wl-paste dependency
+1. Manage numbers in translations. Make use of history to translate "1 apple" ; "2 apple" should not need to call DeepL again.
+2. Fix help not showing.
+3. Add silent mode --silent that only prints translation result, no extra info.
+4. Add verbose mode -v that prints more info on use.
+5. Make exclusion regexes and removal regexes configurable.
+6. Remove wl-paste dependency.
 
 ## Changelog
+### [20250403]
+##### Changed logic to work with string[]
+ 1. Split translation text into translation array by lines
+ 2. Call GetTranslation() for each line
+ - Better history managment
+##### Removed exclusion regex
+ - Unnecesary as removal regex takes care of it
 ### [20250331] Fix
 ##### Added wl-paste dependency
  - Wasn't working as intended

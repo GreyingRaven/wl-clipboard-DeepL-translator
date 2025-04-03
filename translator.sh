@@ -18,6 +18,42 @@ Help()
     echo "-R    Enable/Disable removal flag (Default: Enabled)[true|false]."
 }
 
+##########################################################
+# Get Translation                                        #
+##########################################################
+GetTranslation()
+{
+    # If translations file exists declare translations associative array
+    if [ -f "$translations_file" ]; then
+	declare -A translations
+	source -- "$translations_file"
+	translationhex=$(hexdump -ve '1/1 "%02x"' <<< "$1")
+	if [[ -v translations[$translationhex] ]]; then
+	    echo "${translations[$translationhex]}"
+            exit
+	fi
+    fi
+    # Check if there is an API key, only continue if there is
+    if [ -f "$apikey_file" ]; then
+	API_KEY=$(cat "$apikey_file")
+	echo $1 > "$history_file"
+	# Calls deepl free api and prints the translated text
+	# verbose - echo "$translate_text"
+	translation_data="{ \"text\": [\"$1\"], \"source_lang\": \"$source_lang\", \"target_lang\": \"$target_lang\" }"
+	# verbose - echo $("$translation_data")
+	deepl_response=$(curl --silent -X POST https://api-free.deepl.com/v2/translate   --header "Content-Type: application/json"   --header "Authorization: DeepL-Auth-Key $API_KEY"   --data "$translation_data")
+	# verbose - echo "$deepl_response"
+	translation=$(jq -r ".translations[].text" <<< "${deepl_response}")
+	echo "$translation"
+	# If translations file exists save translation to associative array and persist in file
+	if [ -f "$translations_file" ]; then
+	    translations["$translationhex"]="$translation"
+	    declare -p translations > "$translations_file"
+	fi
+    else
+	echo "No APIKEY for DeepL API found. Create a file .deepl_apikey containing your apikey in the .config folder for this script $/.config/wl-translator"
+    fi
+}
 
 ##########################################################
 # Initialize valiables                                   #
@@ -35,9 +71,10 @@ remove_flag=true
 exclude_flag=true
 # Set line removal regexes
 money_regex='/^.*[0-9]Lo.*$/d'
-# Set exclusion regexes
-time_regex='^.*[0-9]{2}[-:][0-9]{2}[-:][0-9]{2}.*$'
-combat_regex='^.*[0-9]ZP.*$'
+time_regex='/^.*[0-9]{2}[-:][0-9]{2}[-:][0-9]{2}.*$/d'
+zp_regex='/^.*[0-9]ZP/d'
+mp_regex='/[0-9]*MP/d'
+hp_regex='/[0-9]*HP/d'
 # Set default languages
 source_lang="JA"
 target_lang="EN"
@@ -50,7 +87,7 @@ target_lang="EN"
 # Get the options                                         #
 #----------------------------------------------------------
 
-while getopts :h:f:s:t:T:R: flag
+while getopts :h:f:s:t:R: flag
 do
     case "${flag}" in
 	h) # display help
@@ -62,8 +99,6 @@ do
 	    source_lang=${OPTARG};;
 	t) # set target_lang
 	    target_lang=${OPTARG};;
-	T) # set exclusion flag
-	    exclude_flah=${OPTARG};;
 	R) # set removal flag
 	    remove_flag=${OPTARG};;
 	\?) # Invalid option
@@ -72,20 +107,33 @@ do
     esac
 done
 
+
+
 #----------------------------------------------------------
 # Get text and check if translatable                      #
 #----------------------------------------------------------
 
 # Asign text to translate from input
-translate_text="$(wl-paste)"
-# If exclusion_flag exit if any exclusion regex is true
-if $exclude_flag && { [[ "$translate_text" =~ $time_regex ]] || [[ "$translate_text" =~ $combat_regex ]] } ; then
-    exit
-fi
+raw_text="$(wl-paste)"
+# Remove 「」characters
+translate_text="$(sed -e 'H;${x;s/「//g;s/」//g;p;};d' <<< "$raw_text")"
 # If remove_flag active remove removal regexes from translation string
 if $remove_flag ; then 
     translate_text=$(sed $money_regex <<< "$translate_text")
+    translate_text=$(sed $time_regex <<< "$translate_text")
+    translate_text=$(sed $zp_regex <<< "$translate_text")
+    translate_text=$(sed $mp_regex <<< "$translate_text")
+    translate_text=$(sed $hp_regex <<< "$translate_text")
 fi
+echo "$translate_text"
+echo "-"
+# Extract array from translate_text
+readarray -t translate_array <<< "$translate_text"
+for element in "${translate_array[@]}"
+do
+    GetTranslation "$element"
+done
+exit
 # Check if there is something saved as a previous text to translate
 if [ -f "$history_file" ]; then
     last_translation=$(cat "$history_file")
@@ -97,55 +145,4 @@ if [ ! -z "$translate_text" ] && [ "$translate_text" = "$last_translation" ] ; t
     exit
 fi
 
-#----------------------------------------------------------
-# Get translation                                         #
-#----------------------------------------------------------
-
-# If translations file exists declare translations associative array
-if [ -f "$translations_file" ]; then
-    declare -A translations
-    source -- "$translations_file"
-    translationhex=$(hexdump -ve '1/1 "%02x"' <<< "$translate_text")
-    if [[ -v translations[$translationhex] ]]; then
-	clear
-	echo "hex: $translationhex"
-	echo "$translate_text"
-	echo "-"
-	echo "${translations[$translationhex]}"
-        exit
-    fi
-fi
-# Check if there is an API key, only continue if there is
-if [ -f "$apikey_file" ]; then
-    API_KEY=$(cat "$apikey_file")
-
-    # Clear terminal to remove previous translation
-    clear
-    # Update history with latest translation
-    echo $translate_text > "$history_file"
-    # TODO persist translation for later recovery
-    # Print response with following format
-    ## Original text
-    ## -
-    ## Translation
-    echo "$source_lang -> $target_lang"
-    echo "$translate_text"
-    echo "-"
-    # Calls deepl free api and prints the translated text
-    deepl_response=$(curl --silent -X POST https://api-free.deepl.com/v2/translate   --header "Content-Type: application/json"   --header "Authorization: DeepL-Auth-Key $API_KEY"   --data '
-     {
-      "text": ["'$translate_text'"],
-      "source_lang": "'$source_lang'",
-      "target_lang": "'$target_lang'"
-     }')
-    translation=$(jq -r ".translations[0].text" <<< "${deepl_response}")
-    echo "$translation"
-    # If translations file exists save translation to associative array and persist in file
-    if [ -f "$translations_file" ]; then
-	translations["$translationhex"]="$translation"
-	declare -p translations > "$translations_file"
-    fi
-else
-    echo "No APIKEY for DeepL API found. Create a file .deepl_apikey containing your apikey in the .config folder for this script $/.config/wl-translator"
-fi
 
